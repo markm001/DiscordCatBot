@@ -5,5 +5,5 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public interface ServerCommand {
-    public void executeCommand(Member member, TextChannel textChannel, Message message);
+    void executeCommand(Member member, TextChannel textChannel, Message message);
 }

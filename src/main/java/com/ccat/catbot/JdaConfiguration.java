@@ -127,7 +127,7 @@ public class JdaConfiguration {
 
         int activeMembers = onlineStatusListener.getActiveMembersForEachGuild().get();
         String currStatus = statusDisplay[i]
-                .replaceAll("%members", (activeMembers > 0) ? String.valueOf(activeMembers) + "online." : String.valueOf(shardManager.getUsers().size()) + "users.");
+                .replaceAll("%members", (activeMembers > 0) ? activeMembers + "online." : shardManager.getUsers().size() + "users.");
 
         shardManager.setActivity(Activity.watching(currStatus));
     }

@@ -1,22 +1,27 @@
 package com.ccat.catbot.commands;
 
+import com.ccat.catbot.services.MessageService;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class CommandManager {
 
     private final ConcurrentHashMap<String, ServerCommand> commandMap;
+    private final MessageService messageService;
 
-    public CommandManager() {
+    public CommandManager(MessageService messageService) {
+        this.messageService = messageService;
+
         commandMap = new ConcurrentHashMap<>();
         commandMap.put("ping", new PingCommand());
-        commandMap.put("help", new HelpCommand());
-        commandMap.put("purge", new PurgeCommand());
+        commandMap.put("help", new HelpCommand(messageService));
+        commandMap.put("purge", new PurgeCommand(messageService));
     }
 
     public void executeCommand(String command, Member member, TextChannel channel, Message message) {
@@ -25,7 +30,11 @@ public class CommandManager {
             serverCommand.executeCommand(member, channel, message);
         }
         else {
-            channel.sendMessage("Invalid Command has been entered. Use: '!help' for a full list of valid commands.").queue();
+            messageService.sendMessageEmbed(member,
+                    channel,
+                    "⚠ | Error, command not found.",
+                    "You entered an invalid command. Use '!help' for a full list of valid commands.",
+                    Color.decode("#f7c315"));
         }
     }
 }
