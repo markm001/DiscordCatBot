@@ -1,9 +1,6 @@
 package com.ccat.catbot;
 
-import com.ccat.catbot.listeners.CommandListener;
-import com.ccat.catbot.listeners.MemberJoinListener;
-import com.ccat.catbot.listeners.OnlineStatusListener;
-import com.ccat.catbot.listeners.ReactionListener;
+import com.ccat.catbot.listeners.*;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -34,6 +31,7 @@ public class JdaConfiguration {
     private final MemberJoinListener memberJoinListener;
 
     private final ReactionListener reactionListener;
+    private final VoiceChannelListener voiceChannelListener;
 
     private Thread loopThread;
     private int waitTime = 15;
@@ -42,11 +40,13 @@ public class JdaConfiguration {
             "%members"};
 
     public JdaConfiguration(CommandListener commandListener, OnlineStatusListener onlineStatusListener,
-                            MemberJoinListener memberJoinListener, ReactionListener reactionListener) {
+                            MemberJoinListener memberJoinListener, ReactionListener reactionListener,
+                            VoiceChannelListener voiceChannelListener) {
         this.commandListener = commandListener;
         this.onlineStatusListener = onlineStatusListener;
         this.memberJoinListener = memberJoinListener;
         this.reactionListener = reactionListener;
+        this.voiceChannelListener = voiceChannelListener;
     }
 
     @PostConstruct
@@ -73,6 +73,7 @@ public class JdaConfiguration {
         builder.addEventListeners(onlineStatusListener);
         builder.addEventListeners(memberJoinListener);
         builder.addEventListeners(reactionListener);
+        builder.addEventListeners(voiceChannelListener);
 
         shardManager = builder.build();
 
