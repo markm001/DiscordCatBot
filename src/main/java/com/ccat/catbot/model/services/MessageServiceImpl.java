@@ -1,4 +1,4 @@
-package com.ccat.catbot.services;
+package com.ccat.catbot.model.services;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -19,5 +19,10 @@ public class MessageServiceImpl implements MessageService{
         embed.setTimestamp(OffsetDateTime.now());
 
         channel.sendMessageEmbeds(embed.build()).queue();
+    }
+
+    @Override
+    public void sendAccessDenied(Member member, MessageChannel channel, String info) {
+        channel.sendMessage(member.getAsMention() +" "+ info).queue();
     }
 }

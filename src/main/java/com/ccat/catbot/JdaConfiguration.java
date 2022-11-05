@@ -22,6 +22,7 @@ import java.util.Random;
 
 @Component
 public class JdaConfiguration {
+    public static JdaConfiguration INSTANCE;
     private ShardManager shardManager;
     @Autowired
     private Environment env;
@@ -30,7 +31,7 @@ public class JdaConfiguration {
     private final OnlineStatusListener onlineStatusListener;
     private final MemberJoinListener memberJoinListener;
 
-    private final ReactionListener reactionListener;
+    private final DeleteReactionListener deleteReactionListener;
     private final VoiceChannelListener voiceChannelListener;
 
     private Thread loopThread;
@@ -40,18 +41,19 @@ public class JdaConfiguration {
             "%members"};
 
     public JdaConfiguration(CommandListener commandListener, OnlineStatusListener onlineStatusListener,
-                            MemberJoinListener memberJoinListener, ReactionListener reactionListener,
+                            MemberJoinListener memberJoinListener, DeleteReactionListener deleteReactionListener,
                             VoiceChannelListener voiceChannelListener) {
         this.commandListener = commandListener;
         this.onlineStatusListener = onlineStatusListener;
         this.memberJoinListener = memberJoinListener;
-        this.reactionListener = reactionListener;
+        this.deleteReactionListener = deleteReactionListener;
         this.voiceChannelListener = voiceChannelListener;
     }
 
     @PostConstruct
     @ConfigurationProperties("discord-api")
     private void jdaBuild() {
+        INSTANCE = this;
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(env.getProperty("TOKEN"));
 
         System.out.println("Initializing Bot...");
@@ -72,7 +74,7 @@ public class JdaConfiguration {
         builder.addEventListeners(commandListener);
         builder.addEventListeners(onlineStatusListener);
         builder.addEventListeners(memberJoinListener);
-        builder.addEventListeners(reactionListener);
+        builder.addEventListeners(deleteReactionListener);
         builder.addEventListeners(voiceChannelListener);
 
         shardManager = builder.build();
@@ -141,5 +143,9 @@ public class JdaConfiguration {
                 .replaceAll("%members", (activeMembers > 0) ? activeMembers + "online." : shardManager.getUsers().size() + "users.");
 
         shardManager.setActivity(Activity.watching(currStatus));
+    }
+
+    public ShardManager getShardManager() {
+        return shardManager;
     }
 }

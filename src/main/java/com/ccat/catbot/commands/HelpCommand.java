@@ -1,13 +1,11 @@
 package com.ccat.catbot.commands;
 
-import com.ccat.catbot.services.MessageService;
-import net.dv8tion.jda.api.EmbedBuilder;
+import com.ccat.catbot.model.services.MessageService;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.awt.*;
-import java.time.OffsetDateTime;
 
 public class HelpCommand implements ServerCommand{
     private MessageService messageService;

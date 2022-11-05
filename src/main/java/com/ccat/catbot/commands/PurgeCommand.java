@@ -1,6 +1,6 @@
 package com.ccat.catbot.commands;
 
-import com.ccat.catbot.services.MessageService;
+import com.ccat.catbot.model.services.MessageService;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -47,7 +47,7 @@ public class PurgeCommand implements ServerCommand {
                     );
             }
         } else {
-            textChannel.sendMessage(member.getAsMention() + " you lack permissions to delete messages in this channel.").queue();
+            messageService.sendAccessDenied(member, textChannel, "you lack permissions to delete messages in this channel.");
         }
     }
 
