@@ -30,13 +30,11 @@ public class ReactRoleService {
 
     public Optional<ReactRole> findReactRole(ReactRole request) {
         ReactRole reactRole = new ReactRole(
-                UUID.randomUUID().getMostSignificantBits()&Long.MAX_VALUE,
                 request.getGuildId(),
                 request.getChannelId(),
                 request.getMessageId(),
-                request.getRoleId(),
                 request.getEmote()
         );
-        return reactRoleDao.findExact(reactRole.getGuildId(),reactRole.getChannelId(), reactRole.getMessageId(), reactRole.getRoleId(), reactRole.getEmote());
+        return reactRoleDao.findExact(reactRole.getGuildId(),reactRole.getChannelId(), reactRole.getMessageId(), reactRole.getEmote());
     }
 }

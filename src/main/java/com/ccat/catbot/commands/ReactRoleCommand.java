@@ -2,19 +2,19 @@ package com.ccat.catbot.commands;
 
 import com.ccat.catbot.JdaConfiguration;
 import com.ccat.catbot.model.entities.ReactRole;
+import com.ccat.catbot.model.services.EmoteRetrieveService;
 import com.ccat.catbot.model.services.MessageService;
 import com.ccat.catbot.model.services.ReactRoleService;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.managers.GuildManager;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,9 +22,12 @@ public class ReactRoleCommand implements ServerCommand {
     private final MessageService messageService;
     private final ReactRoleService reactRoleService;
 
-    public ReactRoleCommand(MessageService messageService, ReactRoleService reactRoleService) {
+    private final EmoteRetrieveService emoteService;
+
+    public ReactRoleCommand(MessageService messageService, ReactRoleService reactRoleService, EmoteRetrieveService emoteService) {
         this.messageService = messageService;
         this.reactRoleService = reactRoleService;
+        this.emoteService = emoteService;
     }
 
 
@@ -43,6 +46,16 @@ public class ReactRoleCommand implements ServerCommand {
                     long roleId = Long.parseLong(args[3]);
                     String emote = args[4];
 
+                    //Resolve Emote :emote: OR Unicode-emoji:
+                    if (emote.startsWith(":")) {
+                        emote = emoteService.findServerEmote(textChannel.getGuild(), emote);
+
+                        if(emote.isEmpty()) {
+                            sendError(member, textChannel, "⚠ | Error, no such Emote!", "The requested Emote was not found.");
+                            return;
+                        }
+                    }
+
                     //Check IDs-validity:
                     ShardManager shardManager = JdaConfiguration.INSTANCE.getShardManager();
                     TextChannel targetChannel;
@@ -56,6 +69,7 @@ public class ReactRoleCommand implements ServerCommand {
                         return;
                     }
 
+                    String finalEmote = emote;
                     targetChannel.retrieveMessageById(messageId).queue(targetMessage -> {
                         ReactRole reactRoleRequest = new ReactRole(
                                 UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE,
@@ -63,7 +77,7 @@ public class ReactRoleCommand implements ServerCommand {
                                 channelId,
                                 messageId,
                                 roleId,
-                                emote
+                                finalEmote
                         );
 
                         //check if already exists:

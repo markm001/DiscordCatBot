@@ -34,6 +34,8 @@ public class JdaConfiguration {
     private final DeleteReactionListener deleteReactionListener;
     private final VoiceChannelListener voiceChannelListener;
 
+    private final RoleReactionListener roleReactionListener;
+
     private Thread loopThread;
     private int waitTime = 15;
     private final String[] statusDisplay = new String[]{
@@ -42,12 +44,13 @@ public class JdaConfiguration {
 
     public JdaConfiguration(CommandListener commandListener, OnlineStatusListener onlineStatusListener,
                             MemberJoinListener memberJoinListener, DeleteReactionListener deleteReactionListener,
-                            VoiceChannelListener voiceChannelListener) {
+                            VoiceChannelListener voiceChannelListener, RoleReactionListener roleReactionListener) {
         this.commandListener = commandListener;
         this.onlineStatusListener = onlineStatusListener;
         this.memberJoinListener = memberJoinListener;
         this.deleteReactionListener = deleteReactionListener;
         this.voiceChannelListener = voiceChannelListener;
+        this.roleReactionListener = roleReactionListener;
     }
 
     @PostConstruct
@@ -76,6 +79,7 @@ public class JdaConfiguration {
         builder.addEventListeners(memberJoinListener);
         builder.addEventListeners(deleteReactionListener);
         builder.addEventListeners(voiceChannelListener);
+        builder.addEventListeners(roleReactionListener);
 
         shardManager = builder.build();
 

@@ -19,14 +19,16 @@ public class HelpCommand implements ServerCommand{
         message.delete().queue();
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("!help - to receive a list of commands. \n");
-        stringBuilder.append("!ping - to receive a pong from the bot. \n");
+        stringBuilder.append("`!ping` - receive a pong from the bot. \n");
+        stringBuilder.append("`!purge [amount]` - delete a specific amount of messages. \n");
+        stringBuilder.append("`!createrole [name] [#color]` - create a role with a hexadecimal color. \n");
+        stringBuilder.append("`!reactrole [channel-Id] [message-Id] [role-Id] [emote]` - to allow users to receive roles via reactions on a specific message. \n");
 
         member.getUser().openPrivateChannel().queue(privateChannel -> {
 
             messageService.sendMessageEmbed(member,
                     privateChannel,
-                    "List of available Commands for this bot:",
+                    "List of all available Commands for this bot:",
                     stringBuilder.toString(),
                     Color.decode("#f7c315")
                 );

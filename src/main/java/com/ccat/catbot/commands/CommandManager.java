@@ -1,5 +1,6 @@
 package com.ccat.catbot.commands;
 
+import com.ccat.catbot.model.services.EmoteRetrieveService;
 import com.ccat.catbot.model.services.MessageService;
 import com.ccat.catbot.model.services.ReactRoleService;
 import net.dv8tion.jda.api.entities.Member;
@@ -16,7 +17,9 @@ public class CommandManager {
     private final ConcurrentHashMap<String, ServerCommand> commandMap;
     private final MessageService messageService;
 
-    public CommandManager(MessageService messageService, ReactRoleService reactRoleService) {
+    public CommandManager(MessageService messageService,
+                          ReactRoleService reactRoleService,
+                          EmoteRetrieveService emoteService) {
         this.messageService = messageService;
 
         commandMap = new ConcurrentHashMap<>();
@@ -24,7 +27,7 @@ public class CommandManager {
         commandMap.put("help", new HelpCommand(messageService));
         commandMap.put("purge", new PurgeCommand(messageService));
         commandMap.put("createrole", new RoleCreateCommand(messageService));
-        commandMap.put("reactrole", new ReactRoleCommand(messageService, reactRoleService));
+        commandMap.put("reactrole", new ReactRoleCommand(messageService, reactRoleService, emoteService));
     }
 
     public void executeCommand(String command, Member member, TextChannel channel, Message message) {

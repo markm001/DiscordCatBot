@@ -3,6 +3,7 @@ package com.ccat.catbot.model.entities;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.UUID;
 
 @Entity
 @Table(name="reactroles")
@@ -27,6 +28,13 @@ public class ReactRole {
         this.channelId = channelId;
         this.messageId = messageId;
         this.roleId = roleId;
+        this.emote = emote;
+    }
+
+    public ReactRole(Long guildId, Long channelId, Long messageId, String emote) {
+        this.guildId = guildId;
+        this.channelId = channelId;
+        this.messageId = messageId;
         this.emote = emote;
     }
 
