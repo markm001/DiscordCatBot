@@ -72,6 +72,7 @@ public class JdaConfiguration {
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setChunkingFilter(ChunkingFilter.ALL); //Cache all Users on Start-up (lazy-loading)
         builder.enableCache(CacheFlag.ONLINE_STATUS);
+        builder.enableCache(CacheFlag.ROLE_TAGS);
 
         //Listeners:
         builder.addEventListeners(commandListener);

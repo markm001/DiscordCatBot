@@ -35,9 +35,6 @@ public class RoleReactionListener extends ListenerAdapter {
                 long messageIdLong = event.getMessageIdLong();
                 EmojiUnion emoji = event.getEmoji();
 
-                if(emoji.getType() == Emoji.Type.CUSTOM ) System.out.println("\n IS CUSTOM EMOJI \n ");
-                else System.out.println(" \n NOT A CUSTOM EMOJI! \n");
-
                 String formattedEmoji = emoji.getFormatted();
 
                 if(emoji.getType() == Emoji.Type.CUSTOM) {

@@ -1,5 +1,6 @@
 package com.ccat.catbot.commands;
 
+import com.ccat.catbot.model.services.DiceRollService;
 import com.ccat.catbot.model.services.EmoteRetrieveService;
 import com.ccat.catbot.model.services.MessageService;
 import com.ccat.catbot.model.services.ReactRoleService;
@@ -19,7 +20,8 @@ public class CommandManager {
 
     public CommandManager(MessageService messageService,
                           ReactRoleService reactRoleService,
-                          EmoteRetrieveService emoteService) {
+                          EmoteRetrieveService emoteService,
+                          DiceRollService diceRollService) {
         this.messageService = messageService;
 
         commandMap = new ConcurrentHashMap<>();
@@ -28,6 +30,7 @@ public class CommandManager {
         commandMap.put("purge", new PurgeCommand(messageService));
         commandMap.put("createrole", new RoleCreateCommand(messageService));
         commandMap.put("reactrole", new ReactRoleCommand(messageService, reactRoleService, emoteService));
+        commandMap.put("roll", new DiceRollCommand(diceRollService, messageService));
     }
 
     public void executeCommand(String command, Member member, TextChannel channel, Message message) {

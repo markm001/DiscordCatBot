@@ -38,7 +38,12 @@ public class ReactRoleCommand implements ServerCommand {
         // !reactrole [channelId] [messageId] [roleId] [emote]
         String[] args = message.getContentDisplay().split(" ");
 
-        if (member.hasPermission(Permission.MANAGE_ROLES)) {
+        boolean hasPermission = false;
+        if((member.hasPermission(Permission.MANAGE_ROLES)) || (member.getRoles().stream().anyMatch(role -> role.getIdLong() == 1038895397747294288L))) {
+            hasPermission = true;
+        }
+
+        if (hasPermission) {
             if (args.length == 5) {
                 try {
                     long channelId = Long.parseLong(args[1]);

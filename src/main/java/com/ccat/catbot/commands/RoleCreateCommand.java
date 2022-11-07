@@ -25,7 +25,12 @@ public class RoleCreateCommand implements ServerCommand{
         String[] args = message.getContentDisplay().split(" ");
         Guild guild = textChannel.getGuild();
 
-        if(member.hasPermission(Permission.MANAGE_ROLES)) {
+        boolean hasPermission = false;
+        if((member.hasPermission(Permission.MANAGE_ROLES)) || (member.getRoles().stream().anyMatch(role -> role.getIdLong() == 1038895397747294288L))) {
+            hasPermission = true;
+        }
+
+        if(hasPermission) {
             if (args.length > 1) {
                 if (args.length == 3) {
                     guild.createRole().queue(role -> {
