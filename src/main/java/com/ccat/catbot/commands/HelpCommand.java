@@ -23,6 +23,7 @@ public class HelpCommand implements ServerCommand{
         stringBuilder.append("`!purge [amount]` - delete a specific amount of messages. \n");
         stringBuilder.append("`!createrole [name] [#color]` - create a role with a hexadecimal color. \n");
         stringBuilder.append("`!reactrole [channel-Id] [message-Id] [role-Id] [emote]` - to allow users to receive roles via reactions on a specific message. \n");
+        stringBuilder.append("`!permit [@user] [permission code]` - grant a member without elevated permissions access to certain bot-commands. \n");
         stringBuilder.append("`!roll [sides] [amount]` - roll an amount of dice with desired sides. \n");
         stringBuilder.append("`!rollstats` - roll to generate 6 ability scores (4d6 - drop lowest). \n");
 

@@ -1,8 +1,10 @@
 package com.ccat.catbot.commands;
 
 import com.ccat.catbot.JdaConfiguration;
+import com.ccat.catbot.model.entities.GuildMember;
 import com.ccat.catbot.model.entities.ReactRole;
 import com.ccat.catbot.model.services.EmoteRetrieveService;
+import com.ccat.catbot.model.services.MemberPermissionService;
 import com.ccat.catbot.model.services.MessageService;
 import com.ccat.catbot.model.services.ReactRoleService;
 import net.dv8tion.jda.api.Permission;
@@ -24,10 +26,16 @@ public class ReactRoleCommand implements ServerCommand {
 
     private final EmoteRetrieveService emoteService;
 
-    public ReactRoleCommand(MessageService messageService, ReactRoleService reactRoleService, EmoteRetrieveService emoteService) {
+    private final MemberPermissionService permissionService;
+
+    public ReactRoleCommand(MessageService messageService,
+                            ReactRoleService reactRoleService,
+                            EmoteRetrieveService emoteService,
+                            MemberPermissionService permissionService) {
         this.messageService = messageService;
         this.reactRoleService = reactRoleService;
         this.emoteService = emoteService;
+        this.permissionService = permissionService;
     }
 
 
@@ -38,8 +46,17 @@ public class ReactRoleCommand implements ServerCommand {
         // !reactrole [channelId] [messageId] [roleId] [emote]
         String[] args = message.getContentDisplay().split(" ");
 
+        GuildMember guildMemberRequest = new GuildMember(
+                member.getIdLong(),
+                textChannel.getGuild().getIdLong(),
+                Permission.MANAGE_ROLES.getRawValue()
+        );
+
+        //TODO: WRITE A MORE ELEGANT EXCEPTION HANDLER SERVICE.
+
         boolean hasPermission = false;
-        if((member.hasPermission(Permission.MANAGE_ROLES)) || (member.getRoles().stream().anyMatch(role -> role.getIdLong() == 1038895397747294288L))) {
+        if((member.hasPermission(Permission.MANAGE_ROLES)) ||
+                permissionService.checkMemberPermissions(guildMemberRequest)) {
             hasPermission = true;
         }
 

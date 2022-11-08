@@ -1,5 +1,7 @@
 package com.ccat.catbot.commands;
 
+import com.ccat.catbot.model.entities.GuildMember;
+import com.ccat.catbot.model.services.MemberPermissionService;
 import com.ccat.catbot.model.services.MessageService;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -14,9 +16,11 @@ import java.util.regex.Pattern;
 public class RoleCreateCommand implements ServerCommand{
 
     private final MessageService messageService;
+    private final MemberPermissionService permissionService;
 
-    public RoleCreateCommand(MessageService messageService) {
+    public RoleCreateCommand(MessageService messageService, MemberPermissionService permissionService) {
         this.messageService = messageService;
+        this.permissionService = permissionService;
     }
 
     @Override
@@ -25,8 +29,15 @@ public class RoleCreateCommand implements ServerCommand{
         String[] args = message.getContentDisplay().split(" ");
         Guild guild = textChannel.getGuild();
 
+        GuildMember guildMemberRequest = new GuildMember(
+                member.getIdLong(),
+                textChannel.getGuild().getIdLong(),
+                Permission.MANAGE_ROLES.getRawValue()
+        );
+
         boolean hasPermission = false;
-        if((member.hasPermission(Permission.MANAGE_ROLES)) || (member.getRoles().stream().anyMatch(role -> role.getIdLong() == 1038895397747294288L))) {
+        if((member.hasPermission(Permission.MANAGE_ROLES)) ||
+                permissionService.checkMemberPermissions(guildMemberRequest)) {
             hasPermission = true;
         }
 
