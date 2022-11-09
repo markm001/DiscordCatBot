@@ -31,7 +31,7 @@ public class HelpCommand implements ServerCommand{
 
             messageService.sendMessageEmbed(member,
                     privateChannel,
-                    "List of all available Commands for this bot:",
+                    "U+2699 | List of all available Commands for this bot:",
                     stringBuilder.toString(),
                     Color.decode("#f7c315")
                 );
