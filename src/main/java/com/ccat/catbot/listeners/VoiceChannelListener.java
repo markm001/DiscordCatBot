@@ -1,9 +1,11 @@
 package com.ccat.catbot.listeners;
 
+import com.ccat.catbot.model.entities.ChannelTypeSpecifier;
+import com.ccat.catbot.model.entities.ServerChannel;
+import com.ccat.catbot.model.services.ServerChannelService;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -15,18 +17,26 @@ import java.util.List;
 @Component
 public class VoiceChannelListener extends ListenerAdapter {
     List<Long> tempVoiceChannel;
+    private final ServerChannelService channelService;
 
-    public VoiceChannelListener() {
+    public VoiceChannelListener(ServerChannelService channelService) {
         this.tempVoiceChannel = new ArrayList<>();
+        this.channelService = channelService;
     }
 
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         //Set Voice-Channel Hub via Database later!
         if(event.getChannelJoined() != null) {
-            VoiceChannel joinChannel;
+            VoiceChannel joinChannel = event.getChannelJoined().asVoiceChannel();
 
-            if ((joinChannel = event.getChannelJoined().asVoiceChannel()).getIdLong() == 1034456110377214074L) {
+            ServerChannel channelRequest = new ServerChannel(
+                    event.getGuild().getIdLong(),
+                    joinChannel.getIdLong(),
+                    ChannelTypeSpecifier.VOICE);
+
+            if(channelService.checkServerChannelForSpecifier(channelRequest)) {
+
                 Category parentCategory = joinChannel.getParentCategory();
                 Member member = event.getMember();
 

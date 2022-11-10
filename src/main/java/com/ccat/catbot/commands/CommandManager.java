@@ -19,6 +19,7 @@ public class CommandManager {
                           ReactRoleService reactRoleService,
                           EmoteRetrieveService emoteService,
                           MemberPermissionService permissionService,
+                          ServerChannelService serverChannelService,
                           DiceRollService diceRollService) {
         this.messageService = messageService;
 
@@ -30,6 +31,7 @@ public class CommandManager {
         commandMap.put("reactrole", new ReactRoleCommand(messageService, reactRoleService, emoteService, permissionService));
         commandMap.put("permit", new MemberPermissionCommand(messageService, permissionService));
         commandMap.put("roll", new DiceRollCommand(diceRollService, messageService));
+        commandMap.put("specify", new SpecifyCommand(messageService, serverChannelService));
     }
 
     public void executeCommand(String command, Member member, TextChannel channel, Message message) {
