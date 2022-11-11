@@ -17,7 +17,7 @@ public class ServerChannelService {
 
     public ServerChannel setServerChannel(ServerChannel request) {
         ServerChannel serverChannelRequest = new ServerChannel(
-                UUID.randomUUID().getMostSignificantBits()&Long.MAX_VALUE,
+                request.getId(),
                 request.getGuildId(),
                 request.getChannelId(),
                 request.getSpecifier());

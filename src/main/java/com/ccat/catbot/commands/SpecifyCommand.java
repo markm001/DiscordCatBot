@@ -8,14 +8,17 @@ import com.ccat.catbot.model.services.ServerChannelService;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import java.awt.*;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class SpecifyCommand implements ServerCommand{
 
@@ -48,14 +51,27 @@ public class SpecifyCommand implements ServerCommand{
                             .getServerChannelFromGuildAndChannel(serverChannelRequest);
 
                     if(channelResponse.isPresent()) {
-                        //TODO: .submit -> wait for User confirmation & Overrride existing Entry
-                        textChannel.sendMessage("Entry already exists.").queue();
+                        ServerChannel response = channelResponse.get();
+                        textChannel.sendMessage("Entry already exists. Do you want to overwrite the entry?")
+                                .queue(msg -> {
+                                    msg.addReaction(Emoji.fromFormatted("✅")).queue();
+
+                                    JdaConfiguration.INSTANCE.getEventWaiter().waitForEvent(MessageReactionAddEvent.class,
+                                            reaction -> (reaction.getMessageIdLong() == msg.getIdLong())
+                                                    && (Objects.requireNonNull(reaction.getUser()).getIdLong() == member.getIdLong()),
+                                            a -> { saveRequestedChannel(textChannel,
+                                                    new ServerChannel(
+                                                            response.getId(),
+                                                            response.getGuildId(),
+                                                            response.getChannelId(),
+                                                            typeSpecifier));
+                                                    msg.delete().queueAfter(20, TimeUnit.SECONDS);
+                                            },90,TimeUnit.SECONDS,
+                                            () -> msg.delete().queue()); //if reaction time exceeded -> delete.
+                                });
                         return;
                     }
-
-                    ServerChannel serverChannelResponse = serverChannelService
-                            .setServerChannel(serverChannelRequest);
-                    textChannel.sendMessage("Saved requested channel to: " + typeSpecifier).queue();
+                    saveRequestedChannel(textChannel, serverChannelRequest);
 
                 } catch (IllegalArgumentException e) { //IllegalArgumentException or NumberFormatException
                     sendError(member, textChannel);
@@ -66,6 +82,14 @@ public class SpecifyCommand implements ServerCommand{
         } else {
             messageService.sendAccessDenied(member, textChannel, "you lack the permission to manage the bot.");
         }
+    }
+
+    private void saveRequestedChannel(TextChannel textChannel, ServerChannel request) {
+        ServerChannel response = serverChannelService
+                .setServerChannel(request);
+        String channelAsMention = Objects.requireNonNull(textChannel.getGuild().getGuildChannelById(response.getChannelId())).getAsMention();
+        textChannel.sendMessage("Saved requested channel:" + channelAsMention + " to: " + response.getSpecifier())
+                .complete().delete().queueAfter(10, TimeUnit.SECONDS);
     }
 
     private void sendError(Member member, TextChannel textChannel) {
