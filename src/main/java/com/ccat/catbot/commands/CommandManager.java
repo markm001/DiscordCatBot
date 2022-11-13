@@ -1,5 +1,6 @@
 package com.ccat.catbot.commands;
 
+import com.ccat.catbot.clients.GeoapifyRestClient;
 import com.ccat.catbot.model.services.*;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -20,7 +21,8 @@ public class CommandManager {
                           EmoteRetrieveService emoteService,
                           MemberPermissionService permissionService,
                           ServerChannelService serverChannelService,
-                          DiceRollService diceRollService) {
+                          DiceRollService diceRollService,
+                          TimezoneService timezoneService) {
         this.messageService = messageService;
 
         commandMap = new ConcurrentHashMap<>();
@@ -32,6 +34,7 @@ public class CommandManager {
         commandMap.put("permit", new MemberPermissionCommand(messageService, permissionService));
         commandMap.put("roll", new DiceRollCommand(diceRollService, messageService));
         commandMap.put("specify", new SpecifyCommand(messageService, serverChannelService));
+        commandMap.put("schedule", new ScheduleCommand(timezoneService));
     }
 
     public void executeCommand(String command, Member member, TextChannel channel, Message message) {
