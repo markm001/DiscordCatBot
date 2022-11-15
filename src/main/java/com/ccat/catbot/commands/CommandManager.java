@@ -1,6 +1,5 @@
 package com.ccat.catbot.commands;
 
-import com.ccat.catbot.clients.GeoapifyRestClient;
 import com.ccat.catbot.model.services.*;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
