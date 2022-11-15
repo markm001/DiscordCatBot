@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.ZoneId;
 import java.util.Random;
 
 @Component
@@ -42,6 +43,8 @@ public class JdaConfiguration {
     private final String[] statusDisplay = new String[]{
             "use !help for a full list of commands.",
             "%members"};
+
+    private final ZoneId serverZoneId = ZoneId.systemDefault();
 
     public JdaConfiguration(CommandListener commandListener, OnlineStatusListener onlineStatusListener,
                             MemberJoinListener memberJoinListener, DeleteReactionListener deleteReactionListener,
@@ -160,5 +163,9 @@ public class JdaConfiguration {
 
     public EventWaiter getEventWaiter() {
         return eventWaiter;
+    }
+
+    public ZoneId getServerZoneId() {
+        return serverZoneId;
     }
 }

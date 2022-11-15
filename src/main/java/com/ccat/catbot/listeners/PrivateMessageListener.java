@@ -1,9 +1,12 @@
 package com.ccat.catbot.listeners;
 
 import com.ccat.catbot.JdaConfiguration;
+import com.ccat.catbot.listeners.enums.SchedulerState;
+import com.ccat.catbot.model.entities.UserEventTime;
 import com.ccat.catbot.model.entities.UserTime;
 import com.ccat.catbot.model.services.CalendarDisplayService;
 import com.ccat.catbot.model.services.TimezoneService;
+import com.ccat.catbot.model.services.UserEventTimeService;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -14,32 +17,41 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 
 public class PrivateMessageListener extends ListenerAdapter {
     private final TimezoneService timezoneService;
+    private final UserEventTimeService eventTimeService;
     private final Long channelId;
     private final Long userId;
-    private String state;
+    private final Long eventId;
+    private SchedulerState state;
 
     private UserTime userTime;
 
-    private String userMonth;
+    private List<LocalDate> userDates;
 
-
-    //TODO: Temporary - replace with Database-call later:
-    private HashMap<Long, TimeZone> userTimeZones = new HashMap<>();
-
-    public PrivateMessageListener(TimezoneService timezoneService, Long channelId, UserTime userTime, String state) {
+    public PrivateMessageListener(TimezoneService timezoneService, UserEventTimeService eventTimeService, Long channelId, Long eventId, UserTime userTime, SchedulerState state) {
         this.timezoneService = timezoneService;
+        this.eventTimeService = eventTimeService;
         this.channelId = channelId;
-
+        this.eventId = eventId;
         this.userTime = userTime;
         this.userId = userTime.getUserId();
 
         this.state = state;
+
+        this.userDates = new ArrayList<>();
     }
 
     @Override
@@ -48,64 +60,99 @@ public class PrivateMessageListener extends ListenerAdapter {
             MessageChannelUnion channel = event.getChannel();
             if (event.getAuthor().getIdLong() == userId && channel.getIdLong() == channelId) {
                 switch (state) {
-                    case "Set Timezone": //Set User Timezone.
+                    case TIMEZONE: //Set User Timezone.
                         setUserTimezone(event, channel);
                         break;
-                    case "Set Month": //Choose Month.
-                        if(event.getMessage().getContentDisplay().equalsIgnoreCase("date")) {
-                            setAvailableDate(event,channel);
+                    case MONTH: //Choose Month and Day:
+                        if (event.getMessage().getContentDisplay().equalsIgnoreCase("add date")) {
+                            setAvailableDate(channel);
+                            if (userDates.size() == 1) {
+                                JdaConfiguration.INSTANCE.getEventWaiter().waitForEvent(MessageReceivedEvent.class,
+                                        c -> c.getMessage().getContentDisplay().equalsIgnoreCase("complete"),
+                                        a -> state = SchedulerState.DAY);
+                            }
                         }
                         break;
-                    case "Set Day": //Choose Day & Time
-                        System.out.println("Next");
+                    case DAY: //Choose Time for Day:
+                        for (LocalDate date : userDates) {
+                            System.out.println(date);
+                            channel.sendMessage("Select a Time for the " + date)
+                                    .addActionRow(getHourSelectMenu())
+                                    .queue(message ->
+                                            JdaConfiguration.INSTANCE.getEventWaiter().waitForEvent(StringSelectInteractionEvent.class,
+                                                    con -> con.getInteraction().getMessageIdLong() == message.getIdLong(),
+                                                    act -> {
+                                                        String selectedTime = act.getInteraction().getValues().get(0);
+                                                        try {
+                                                            LocalTime time = LocalTime.parse(selectedTime);
+                                                            LocalDateTime dateTime = LocalDateTime.of(date, time);
+
+                                                            ZonedDateTime zonedUserTime = ZonedDateTime.of(dateTime, userTime.getTimeZone().toZoneId());
+                                                            ZonedDateTime zonedServerTime = zonedUserTime.withZoneSameInstant(JdaConfiguration.INSTANCE.getServerZoneId());
+
+                                                            eventTimeService.saveEventTime(new UserEventTime(userId, eventId, zonedServerTime));
+
+                                                            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                            act.reply("Your selection has been saved: " + dateTime.format(dateTimeFormatter)).queue();
+
+                                                        } catch (DateTimeParseException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }));
+                        }
                         break;
                 }
             }
         }
     }
 
-    private void setAvailableDate(MessageReceivedEvent event, MessageChannelUnion channel) {
+    private void setAvailableDate(MessageChannelUnion channel) {
         channel.sendMessage("Please select an available month")
                 .addActionRow(getMonthSelectMenu())
                 .queue(message -> {
                     JdaConfiguration.INSTANCE.getEventWaiter().waitForEvent(StringSelectInteractionEvent.class,
-                        c -> c.getInteraction().getMessageIdLong() == message.getIdLong(),
-                        a -> {
-                            String selectedMonth = a.getInteraction().getValues().get(0);
-                            String[] date = selectedMonth.split("-");
-                            System.out.println("\n ## Selection was: " + date[0] + ":" + date[1] + " ## \n");
+                            c -> c.getInteraction().getMessageIdLong() == message.getIdLong(),
+                            a -> {
+                                String selectedMonth = a.getInteraction().getValues().get(0);
+                                String[] date = selectedMonth.split("-");
+                                System.out.println("\n ## Selection was: " + date[0] + ":" + date[1] + " ## \n");
 
-                            try {
-                                int year = Integer.parseInt(date[0]);
-                                int month = Integer.parseInt(date[1]);
+                                try {
+                                    int year = Integer.parseInt(date[0]);
+                                    int month = Integer.parseInt(date[1]);
 
-                                a.reply(CalendarDisplayService.buildCalendarDisplay(year, month)).queue();
+                                    a.reply(CalendarDisplayService.buildCalendarDisplay(year, month)).queue();
 
-                                int lengthConstraint = LocalDate.of(year, month, 1).lengthOfMonth();
-                                String regex;
-                                switch(lengthConstraint) {
-                                    case 28:
-                                        regex = "^([1-9]|[12][0-8])$"; break;
-                                    case 29:
-                                        regex = "^([1-9]|[12]\\d)$"; break;
-                                    case 30:
-                                        regex = "^([1-9]|[12]\\d|30)$"; break;
-                                    default:
-                                        regex = "^([1-9]|[12]\\d|3[0-1])$"; break;
+                                    int lengthConstraint = LocalDate.of(year, month, 1).lengthOfMonth();
+                                    String regex;
+                                    switch (lengthConstraint) {
+                                        case 28:
+                                            regex = "^([1-9]|[12][0-8])$";
+                                            break;
+                                        case 29:
+                                            regex = "^([1-9]|[12]\\d)$";
+                                            break;
+                                        case 30:
+                                            regex = "^([1-9]|[12]\\d|30)$";
+                                            break;
+                                        default:
+                                            regex = "^([1-9]|[12]\\d|3[0-1])$";
+                                            break;
+                                    }
+
+                                    JdaConfiguration.INSTANCE.getEventWaiter().waitForEvent(MessageReceivedEvent.class,
+                                            c -> c.getMessage().getContentDisplay().matches(regex),
+                                            messageReceivedEvent -> {
+                                                int day = Integer.parseInt(messageReceivedEvent.getMessage().getContentRaw());
+                                                LocalDate selectedDate = LocalDate.of(year, month, day);
+                                                channel.sendMessage("Selected Date: " + selectedDate
+                                                        + "\n To confirm your selection, please type `complete`").queue();
+                                                userDates.add(selectedDate);
+                                            });
+                                } catch (NumberFormatException e) {
+                                    e.printStackTrace();
                                 }
-
-                                JdaConfiguration.INSTANCE.getEventWaiter().waitForEvent(MessageReceivedEvent.class,
-                                    c -> c.getMessage().getContentDisplay().matches(regex),
-                                    messageReceivedEvent -> {
-                                            int day = Integer.parseInt(messageReceivedEvent.getMessage().getContentRaw());
-                                            LocalDate selectedDate = LocalDate.of(year, month, day);
-                                            channel.sendMessage("Selected Date: " + selectedDate).queue();
-                                    });
-                            } catch (NumberFormatException e) {
-                                e.printStackTrace();
-                            }
-
-                        });
+                            });
                 });
     }
 
@@ -115,33 +162,47 @@ public class PrivateMessageListener extends ListenerAdapter {
 
         if (timeZoneResponse.isEmpty()) {
             channel.sendMessage("Location was not found, please try to be more specific.").queue();
-        } else if(timeZoneResponse.size() > 1) {
+        } else if (timeZoneResponse.size() > 1) {
             channel.sendMessage("Multiple results were found. Please choose your Timezone.")
                     .addActionRow(getTimezoneSelectMenu(timeZoneResponse))
                     .queue(message -> JdaConfiguration.INSTANCE.getEventWaiter()
                             .waitForEvent(StringSelectInteractionEvent.class,
-                                c -> c.getInteraction().getMessageIdLong() == message.getIdLong(),
-                                a -> {
-                                    String selectedTimezone = a.getInteraction().getValues().get(0);
-                                    TimeZone timeZone = TimeZone.getTimeZone(selectedTimezone);
+                                    c -> c.getInteraction().getMessageIdLong() == message.getIdLong(),
+                                    a -> {
+                                        String selectedTimezone = a.getInteraction().getValues().get(0);
+                                        TimeZone timeZone = TimeZone.getTimeZone(selectedTimezone);
 
-                                    userTime = new UserTime(
-                                            userId,
-                                            timeZone);
-                                    timezoneService.saveUserTimezone(userTime);
-                                    a.reply("Your Timezone has been set to: " + timeZone.getDisplayName() + ".\n To select dates, please type `date`.")
-                                            .queue();
-                                    state = "Set Month";
-                                }));
+                                        userTime = new UserTime(
+                                                userId,
+                                                timeZone);
+                                        timezoneService.saveUserTimezone(userTime);
+                                        a.reply("Your Timezone has been set to: " + timeZone.getDisplayName() + ".\n To select dates, please type `add date`.")
+                                                .queue();
+                                        state = SchedulerState.MONTH;
+                                    }));
         } else {
             userTime = new UserTime(
                     userId,
                     timeZoneResponse.get(0));
             timezoneService.saveUserTimezone(userTime);
-            channel.sendMessage("Your Timezone has been set to: " + userTime.getTimeZone().getDisplayName() + ".\n To select dates, please type `date`.")
+            channel.sendMessage("Your Timezone has been set to: " + userTime.getTimeZone().getDisplayName() + ".\n To select dates, please type `add date`.")
                     .queue();
-            state = "Set Month";
+            state = SchedulerState.MONTH;
         }
+    }
+
+    public static StringSelectMenu getHourSelectMenu() {
+        List<SelectOption> options = new ArrayList<>();
+
+
+        LocalTime time = LocalTime.of(0, 0);
+        for (int i = 0; i < 24; i++) {
+            String timeOption = time.plusHours(i).toString();
+            options.add(SelectOption.of(timeOption, timeOption));
+        }
+        return StringSelectMenu.create("Select a time.")
+                .addOptions(options)
+                .build();
     }
 
     public static StringSelectMenu getMonthSelectMenu() {
@@ -155,7 +216,7 @@ public class PrivateMessageListener extends ListenerAdapter {
             options.add(SelectOption.of(now.plusMonths(i).getMonth().toString(), now.plusMonths(i).toString()));
         }
 
-        return StringSelectMenu.create("Month options")
+        return StringSelectMenu.create("Select a month.")
                 .addOptions(options)
                 .build();
 

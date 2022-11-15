@@ -6,7 +6,7 @@ import javax.persistence.Table;
 import java.util.TimeZone;
 
 @Entity
-@Table(name="times")
+@Table(name="usertimezones")
 public class UserTime {
     @Id
     Long userId;
