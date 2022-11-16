@@ -4,9 +4,9 @@ import com.ccat.catbot.JdaConfiguration;
 import com.ccat.catbot.listeners.enums.SchedulerState;
 import com.ccat.catbot.model.entities.UserEventTime;
 import com.ccat.catbot.model.entities.UserTime;
-import com.ccat.catbot.model.services.CalendarDisplayService;
-import com.ccat.catbot.model.services.TimezoneService;
-import com.ccat.catbot.model.services.UserEventTimeService;
+import com.ccat.catbot.model.services.implementations.CalendarDisplayService;
+import com.ccat.catbot.model.services.implementations.TimezoneService;
+import com.ccat.catbot.model.services.implementations.UserEventTimeService;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -87,7 +87,7 @@ public class PrivateMessageListener extends ListenerAdapter {
                                                             LocalTime time = LocalTime.parse(selectedTime);
                                                             LocalDateTime dateTime = LocalDateTime.of(date, time);
 
-                                                            ZonedDateTime zonedUserTime = ZonedDateTime.of(dateTime, userTime.getTimeZone().toZoneId());
+                                                            ZonedDateTime zonedUserTime = ZonedDateTime.of(dateTime, userTime.getTimezone().toZoneId());
                                                             ZonedDateTime zonedServerTime = zonedUserTime.withZoneSameInstant(JdaConfiguration.INSTANCE.getServerZoneId());
 
                                                             eventTimeService.saveEventTime(new UserEventTime(userId, eventId, zonedServerTime));
@@ -185,7 +185,7 @@ public class PrivateMessageListener extends ListenerAdapter {
                     userId,
                     timeZoneResponse.get(0));
             timezoneService.saveUserTimezone(userTime);
-            channel.sendMessage("Your Timezone has been set to: " + userTime.getTimeZone().getDisplayName() + ".\n To select dates, please type `add date`.")
+            channel.sendMessage("Your Timezone has been set to: " + userTime.getTimezone().getDisplayName() + ".\n To select dates, please type `add date`.")
                     .queue();
             state = SchedulerState.MONTH;
         }

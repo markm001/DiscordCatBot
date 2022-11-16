@@ -8,6 +8,6 @@ create table usereventtimes (
 
 create table usertimezones (
        user_id bigint not null,
-       time_zone varchar(255) not null,
+       timezone varchar(255) not null,
        primary key (user_id)
 );

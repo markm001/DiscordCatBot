@@ -1,4 +1,4 @@
-package com.ccat.catbot.model.services;
+package com.ccat.catbot.model.services.implementations;
 
 import com.ccat.catbot.clients.GeoapifyClient;
 import com.ccat.catbot.clients.GeoapifyMockClient;
@@ -33,7 +33,7 @@ public class TimezoneService {
     public UserTime saveUserTimezone(UserTime request) {
         return timeDao.save(new UserTime(
                         request.getUserId(),
-                        request.getTimeZone()));
+                        request.getTimezone()));
     }
 
     public Optional<UserTime> getUserTimezone(Long userId) {

@@ -4,20 +4,17 @@ import com.ccat.catbot.JdaConfiguration;
 import com.ccat.catbot.model.entities.ChannelTypeSpecifier;
 import com.ccat.catbot.model.entities.ServerChannel;
 import com.ccat.catbot.model.services.MessageService;
-import com.ccat.catbot.model.services.ServerChannelService;
+import com.ccat.catbot.model.services.implementations.ServerChannelService;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import java.awt.*;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class SpecifyCommand implements ServerCommand{

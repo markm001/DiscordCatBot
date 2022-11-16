@@ -1,4 +1,4 @@
-package com.ccat.catbot.model.services;
+package com.ccat.catbot.model.services.implementations;
 
 import com.ccat.catbot.model.entities.UserEventTime;
 import com.ccat.catbot.model.repositories.UserEventTimeDao;

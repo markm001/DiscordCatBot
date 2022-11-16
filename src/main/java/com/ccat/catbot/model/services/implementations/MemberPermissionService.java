@@ -1,4 +1,4 @@
-package com.ccat.catbot.model.services;
+package com.ccat.catbot.model.services.implementations;
 
 import com.ccat.catbot.model.entities.GuildMember;
 import com.ccat.catbot.model.repositories.GuildMemberDao;

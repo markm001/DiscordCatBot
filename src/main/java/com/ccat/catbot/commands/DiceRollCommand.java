@@ -1,6 +1,6 @@
 package com.ccat.catbot.commands;
 
-import com.ccat.catbot.model.services.DiceRollService;
+import com.ccat.catbot.model.services.implementations.DiceRollService;
 import com.ccat.catbot.model.services.MessageService;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

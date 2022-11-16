@@ -2,7 +2,7 @@ package com.ccat.catbot.listeners;
 
 import com.ccat.catbot.model.entities.ChannelTypeSpecifier;
 import com.ccat.catbot.model.entities.ServerChannel;
-import com.ccat.catbot.model.services.ServerChannelService;
+import com.ccat.catbot.model.services.implementations.ServerChannelService;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;

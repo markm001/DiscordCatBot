@@ -1,6 +1,7 @@
 package com.ccat.catbot.commands;
 
 import com.ccat.catbot.model.services.*;
+import com.ccat.catbot.model.services.implementations.*;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -22,7 +23,8 @@ public class CommandManager {
                           ServerChannelService serverChannelService,
                           DiceRollService diceRollService,
                           TimezoneService timezoneService,
-                          UserEventTimeService eventTimeService) {
+                          UserEventTimeService eventTimeService,
+                          EventService eventCreateService) {
         this.messageService = messageService;
 
         commandMap = new ConcurrentHashMap<>();
@@ -35,6 +37,7 @@ public class CommandManager {
         commandMap.put("roll", new DiceRollCommand(diceRollService, messageService));
         commandMap.put("specify", new SpecifyCommand(messageService, serverChannelService));
         commandMap.put("schedule", new ScheduleCommand(timezoneService, eventTimeService,messageService));
+        commandMap.put("createevent", new CreateEventCommand(eventCreateService,messageService));
     }
 
     public void executeCommand(String command, Member member, TextChannel channel, Message message) {

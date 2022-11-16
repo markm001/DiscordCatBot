@@ -1,4 +1,4 @@
-package com.ccat.catbot.model.services;
+package com.ccat.catbot.model.services.implementations;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

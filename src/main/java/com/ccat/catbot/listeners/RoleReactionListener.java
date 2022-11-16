@@ -1,7 +1,7 @@
 package com.ccat.catbot.listeners;
 
 import com.ccat.catbot.model.entities.ReactRole;
-import com.ccat.catbot.model.services.ReactRoleService;
+import com.ccat.catbot.model.services.implementations.ReactRoleService;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.ChannelType;

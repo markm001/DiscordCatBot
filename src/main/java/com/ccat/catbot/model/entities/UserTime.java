@@ -10,21 +10,21 @@ import java.util.TimeZone;
 public class UserTime {
     @Id
     Long userId;
-    TimeZone timeZone;
+    TimeZone timezone;
 
     public UserTime() {
     }
 
-    public UserTime(Long userId, TimeZone timeZone) {
+    public UserTime(Long userId, TimeZone timezone) {
         this.userId = userId;
-        this.timeZone = timeZone;
+        this.timezone = timezone;
     }
 
     public Long getUserId() {
         return userId;
     }
 
-    public TimeZone getTimeZone() {
-        return timeZone;
+    public TimeZone getTimezone() {
+        return timezone;
     }
 }

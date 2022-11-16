@@ -3,20 +3,18 @@ package com.ccat.catbot.commands;
 import com.ccat.catbot.JdaConfiguration;
 import com.ccat.catbot.model.entities.GuildMember;
 import com.ccat.catbot.model.entities.ReactRole;
-import com.ccat.catbot.model.services.EmoteRetrieveService;
-import com.ccat.catbot.model.services.MemberPermissionService;
+import com.ccat.catbot.model.services.implementations.EmoteRetrieveService;
+import com.ccat.catbot.model.services.implementations.MemberPermissionService;
 import com.ccat.catbot.model.services.MessageService;
-import com.ccat.catbot.model.services.ReactRoleService;
+import com.ccat.catbot.model.services.implementations.ReactRoleService;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.awt.*;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

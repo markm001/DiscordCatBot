@@ -1,5 +1,6 @@
-package com.ccat.catbot.model.services;
+package com.ccat.catbot.model.services.implementations;
 
+import com.ccat.catbot.model.services.MessageService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -9,7 +10,7 @@ import java.awt.*;
 import java.time.OffsetDateTime;
 
 @Service
-public class MessageServiceImpl implements MessageService{
+public class MessageServiceImpl implements MessageService {
     @Override
     public void sendMessageEmbed(Member member, MessageChannel channel, String title, String description, Color color) {
         EmbedBuilder embed = new EmbedBuilder().setColor(color);
