@@ -32,9 +32,19 @@ public class ScheduleCommand implements ServerCommand {
         String[] args = message.getContentDisplay().split(" ");
         if (args.length == 2) {
             try {
-                //TODO: Database for checking if eventId is valid.
                 long eventId = Long.parseLong(args[1]);
                 long userId = member.getUser().getIdLong();
+
+                //Requested Event-Id exists in for Guild check:
+                if(textChannel.getGuild().getScheduledEvents().stream()
+                        .noneMatch(scheduledEvent -> scheduledEvent.getIdLong() == eventId)) {
+                    messageService.sendMessageEmbed(member,
+                            textChannel,
+                            "⚠ | Event-Id Error.",
+                            "The entered Event-Id is not valid. Please check your active Guild Events.",
+                            Color.decode("#f7c315"));
+                    return;
+                }
 
                 message.delete().queueAfter(10, TimeUnit.SECONDS);
                 member.getUser().openPrivateChannel().queue(channel -> {

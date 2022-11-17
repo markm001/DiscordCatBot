@@ -1,6 +1,5 @@
 package com.ccat.catbot.commands;
 
-import com.ccat.catbot.model.services.MessageService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -9,13 +8,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import java.awt.*;
 
-public class HelpCommand implements ServerCommand{
-    private MessageService messageService;
-
-    public HelpCommand(MessageService messageService) {
-        this.messageService = messageService;
-    }
-
+public class HelpCommand implements ServerCommand {
     @Override
     public void executeCommand(Member member, TextChannel textChannel, Message message) {
         message.delete().queue();
@@ -28,6 +21,8 @@ public class HelpCommand implements ServerCommand{
         stringBuilder.append("`!reactrole [channel-Id] [message-Id] [role-Id] [emote]` - to allow users to receive roles via reactions on a specific message. \n");
         stringBuilder.append("`!permit [@user] [permission code]` - grant a member without elevated permissions access to certain bot-commands. \n");
         stringBuilder.append("`!specify [channel-Id] [specifier]` - specify channels the bot will listen on (e.g. MUSIC,VOICE,SYSTEM). \n");
+        stringBuilder.append("`!createEvent [\"topic\"] [startTimeUTC] [duration]` - creates an Event with Event-Id description. (Start-time in UTC and duration are optional.) \n");
+        stringBuilder.append("`!schedule [event-Id]` - allows Users to input their desired times for a specific event. \n");
 
         stringBuilder.append("`!roll [sides] [amount]` - roll an amount of dice with desired sides.");
         subBuilder.append(" - roll to generate 6 ability scores. \n");
@@ -38,7 +33,6 @@ public class HelpCommand implements ServerCommand{
         subBuilder.append("★ `plus6` - roll 2d6, add 6 to each result. \n");
 
         member.getUser().openPrivateChannel().queue(privateChannel -> {
-
             EmbedBuilder builder = new EmbedBuilder();
             builder.setTitle(Emoji.fromUnicode("U+2699").getAsReactionCode() +
                     " | List of all available Commands for this bot:");
@@ -48,13 +42,6 @@ public class HelpCommand implements ServerCommand{
             builder.setColor(Color.decode("#f7c315"));
 
             privateChannel.sendMessageEmbeds(builder.build()).queue();
-
-//            messageService.sendMessageEmbed(member,
-//                    privateChannel,
-//                    Emoji.fromUnicode("U+2699").getAsReactionCode() + " | List of all available Commands for this bot:",
-//                    stringBuilder.toString(),
-//                    Color.decode("#f7c315")
-//                );
         });
     }
 }

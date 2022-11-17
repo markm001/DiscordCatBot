@@ -26,7 +26,6 @@ public class VoiceChannelListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
-        //Set Voice-Channel Hub via Database later!
         if(event.getChannelJoined() != null) {
             VoiceChannel joinChannel = event.getChannelJoined().asVoiceChannel();
 

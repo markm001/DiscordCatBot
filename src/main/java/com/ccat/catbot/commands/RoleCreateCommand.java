@@ -35,17 +35,14 @@ public class RoleCreateCommand implements ServerCommand{
                 Permission.MANAGE_ROLES.getRawValue()
         );
 
-        boolean hasPermission = false;
-        if((member.hasPermission(Permission.MANAGE_ROLES)) ||
-                permissionService.checkMemberPermissions(guildMemberRequest)) {
-            hasPermission = true;
-        }
+        boolean hasPermission = (member.hasPermission(Permission.MANAGE_ROLES)) ||
+                permissionService.checkMemberPermissions(guildMemberRequest);
 
         if(hasPermission) {
             if (args.length > 1) {
                 if (args.length == 3) {
                     guild.createRole().queue(role -> {
-                        Pattern hexPattern = Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$");
+                        Pattern hexPattern = Pattern.compile("^#([A-Fa-f\\d]{6}|[A-Fa-f\\d]{3})$");
 
                         if (hexPattern.matcher(args[2]).matches()) {
                             Color hexColor = Color.decode(args[2]);

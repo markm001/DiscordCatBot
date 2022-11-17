@@ -29,7 +29,7 @@ public class CommandManager {
 
         commandMap = new ConcurrentHashMap<>();
         commandMap.put("ping", new PingCommand());
-        commandMap.put("help", new HelpCommand(messageService));
+        commandMap.put("help", new HelpCommand());
         commandMap.put("purge", new PurgeCommand(messageService));
         commandMap.put("createrole", new RoleCreateCommand(messageService, permissionService));
         commandMap.put("reactrole", new ReactRoleCommand(messageService, reactRoleService, emoteService, permissionService));

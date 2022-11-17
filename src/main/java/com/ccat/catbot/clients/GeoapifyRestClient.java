@@ -21,8 +21,6 @@ public class GeoapifyRestClient implements GeoapifyClient{
 
     @Autowired
     private Environment env;
-//    @Value("${geoapify.apiKey}")
-//    private String apiKey;
 
     public GeoapifyRestClient() {
     }
@@ -33,7 +31,6 @@ public class GeoapifyRestClient implements GeoapifyClient{
 
         String encodedLocation = URLEncoder.encode(location, StandardCharsets.UTF_8);
         String requestUri = baseUrl + "/search?text=" + encodedLocation + "&apiKey=" + env.getProperty("apiKey");
-        System.out.println(requestUri);
 
         GeoapifyClientResponse response = restTemplate.getForObject(requestUri, GeoapifyClientResponse.class);
 
