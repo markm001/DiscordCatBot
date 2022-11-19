@@ -21,6 +21,10 @@ public class UserEventTime {
     public UserEventTime() {
     }
 
+    public UserEventTime(Long eventId) {
+        this.eventId = eventId;
+    }
+
     public UserEventTime(Long id, Long userId, Long eventId, ZonedDateTime availableTime) {
         this.id = id;
         this.userId = userId;
