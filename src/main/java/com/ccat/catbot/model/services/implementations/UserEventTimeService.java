@@ -1,5 +1,7 @@
 package com.ccat.catbot.model.services.implementations;
 
+import com.ccat.catbot.model.dto.EventDataDto;
+import com.ccat.catbot.model.dto.TimeEvaluation;
 import com.ccat.catbot.model.entities.UserEventTime;
 import com.ccat.catbot.model.repositories.UserEventTimeDao;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ public class UserEventTimeService {
         ));
     }
 
-    public void searchSuitableTime(UserEventTime request) {
+    public EventDataDto searchSuitableTime(UserEventTime request) {
         List<UserEventTime> userEventTimesResponse = eventTimeDao.findUserTimesForEventId(request.getEventId());
 
         List<ZonedDateTime> userTimeData = userEventTimesResponse.stream()
@@ -46,7 +48,7 @@ public class UserEventTimeService {
         AtomicReference<Set<Long>> availableUsers = new AtomicReference<>(Set.of());
         AtomicReference<LocalDate> availableDate = new AtomicReference<>(LocalDate.now());
         AtomicReference<Set<Integer>> availableHours = new AtomicReference<>(Set.of());
-        HashMap<String, Integer> timeEvaluation = new HashMap<>();
+        HashMap<TimeEvaluation, LocalTime> timeEvaluation = new HashMap<>();
 
         monthMap.keySet().forEach(m -> {
             monthMap.get(m).keySet().forEach(d -> {
@@ -80,9 +82,9 @@ public class UserEventTimeService {
 
                     int averageTime = (int)(Math.abs(avg-earliestTime) < Math.abs(latestTime-avg) ? Math.floor(avg) : Math.ceil(avg));
 
-                    timeEvaluation.put("AVERAGE",averageTime);
-                    timeEvaluation.put("EARLY",earliestTime);
-                    timeEvaluation.put("LATE",latestTime);
+                    timeEvaluation.put(TimeEvaluation.AVERAGE_TIME, LocalTime.of(averageTime,0));
+                    timeEvaluation.put(TimeEvaluation.EARLIEST_TIME, LocalTime.of(earliestTime,0));
+                    timeEvaluation.put(TimeEvaluation.LATEST_TIME, LocalTime.of(latestTime,0));
                 }
             });
         });
@@ -103,12 +105,27 @@ public class UserEventTimeService {
             userSelectedTimes.computeIfAbsent(uid, v -> new ArrayList<>()).addAll(timeSelection);
         });
 
+        //Compute missing Participants and closest Time.
+        HashMap<Long,List<LocalDateTime>> missingParticipantData = new HashMap<>();
+        userEventTimesResponse.stream()
+                .filter(eventData -> !availableUsers.get().contains(eventData.getUserId()))
+                .sorted((k,v) ->
+                        v.getAvailableTime().toLocalDateTime()
+                                .compareTo(LocalDateTime.of(availableDate.get(),
+                                        timeEvaluation.get(TimeEvaluation.AVERAGE_TIME))))
+                .forEach(eventData -> missingParticipantData
+                        .computeIfAbsent(eventData.getUserId(), v -> new ArrayList<>())
+                        .add(eventData.getAvailableTime().toLocalDateTime())
+                );
 
 
-        System.out.println("Result ~ \nBest Date:" + availableDate +
-                "\nAll Times:" + availableHours +
-                "\nParticipants: " + availableUsers);
-        System.out.println(timeEvaluation);
-        userSelectedTimes.forEach((u,v) -> System.out.println("User: " + u + " : " + v));
+        return new EventDataDto(request.getEventId(),
+                availableDate.get(),
+                availableHours.get().stream().map(i -> LocalTime.of(i, 0)).collect(Collectors.toSet()),
+                availableUsers.get(),
+                userSelectedTimes,
+                timeEvaluation,
+                missingParticipantData
+        );
     }
 }
