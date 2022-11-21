@@ -6,30 +6,25 @@ public class CalendarDisplayService {
     public static String buildCalendarDisplay(int selectedYear, int selectedMonth) {
 
         LocalDate date = LocalDate.of(selectedYear, selectedMonth, 1);
-        int begin = date.getDayOfWeek().getValue();
+        int begin = date.getDayOfWeek().getValue() + 1;
         int days = date.lengthOfMonth();
 
         StringBuilder builder = new StringBuilder();
 
-        String header = "  S  M  T  W  T  F  S";
+        String header = " So Mo Tu We Th Fr Sa";
         builder.append(header);
 
         int day = 1;
-        for(int i=1; i<= begin + days - 1; i++) {
-            if(i % 7 == 1) {
-                builder.append("\n");
-            }
+
+        for(int i=1; i<(begin + days); i++) {
+            if(i % 7 == 1) builder.append("\n");
             if(i < begin) {
                 builder.append("   ");
             } else {
-                if(day/10 == 0) {
-                    builder.append("  ").append(day);
-                } else {
-                    builder.append(" ").append(day);
-                }
+                builder.append((day/10 == 0) ? "  " : " ").append(day);
                 day ++;
             }
         }
-        return "`" + builder.toString() + "`";
+        return "`\n" + builder.toString() + "\n`";
     }
 }
