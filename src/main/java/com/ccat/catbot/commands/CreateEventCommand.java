@@ -26,7 +26,7 @@ public class CreateEventCommand implements ServerCommand{
 
     @Override
     public void executeCommand(Member member, TextChannel textChannel, Message message) {
-        //Syntax: !createevent [topic] ([startTime: 2022-11-29T20:00:00] [duration] in UTC)
+        //Syntax: !eventCreate [topic] ([startTime: 2022-11-29T20:00:00] [duration] in UTC)
         if(member.hasPermission(Permission.MANAGE_EVENTS)) {
             //TODO:Retrieve User-Timezone from DB -> Set ZoneId for User
             Guild guild = textChannel.getGuild();
@@ -36,10 +36,16 @@ public class CreateEventCommand implements ServerCommand{
 
 
             ArrayList<String> argsList = new ArrayList<>();
-            while(matcher.find()) { //[!createevent, "Relaxing, a test", 2022-11-16T20:00:00, 4]
+            while(matcher.find()) { //[!eventCreate, "Relaxing, a test", 2022-11-16T20:00:00, 4]
                 argsList.add(matcher.group());
             }
-            String topic = argsList.get(1);
+            String topic = "";
+            if(argsList.size() >= 2) {
+                topic = argsList.get(1);
+            }  else {
+                sendError(member, textChannel);
+                return;
+            }
 
             if(argsList.size() == 4) {
                 String[] startStrings = argsList.get(2).split("T");
@@ -60,8 +66,6 @@ public class CreateEventCommand implements ServerCommand{
                 LocalDateTime endLdt = startLdt.plusHours(8);
 
                 createEvent(guild, topic, startLdt, endLdt);
-            } else {
-                sendError(member, textChannel);
             }
         } else {
             messageService.sendAccessDenied(member, textChannel, "you cannot schedule events.");
@@ -72,7 +76,7 @@ public class CreateEventCommand implements ServerCommand{
         messageService.sendMessageEmbed(member,
                 textChannel,
                 "⚠ | Syntax Error.",
-                "The `!createEvent` command, requires a topic optional:(startDateTime-UTC[2022-11-29T20:00:00] and duration[hours]). `!createEvent [\"topic\"] [startTime in UTC] [duration in Hours]`.",
+                "The `!eventCreate` command, requires a topic optional:(startDateTime-UTC[2022-11-29T20:00:00] and duration[hours]). `!eventCreate [\"topic\"] [startTime in UTC] [duration in Hours]`.",
                 Color.decode("#f7c315")
         );
     }
@@ -82,7 +86,8 @@ public class CreateEventCommand implements ServerCommand{
                 .thenAccept(event -> {
                     long eventId = event.getIdLong();
                     event.getManager().setDescription("Please use the ID: [" + eventId
-                            + "], when scheduling or retrieving Information. \n To start type: `!schedule " + eventId + "`").queue();
+                            + "], when scheduling or retrieving Information. \n To start type: `!schedule " + eventId + "`."
+                            + "\n To view event statistics type: `!eventView "+ eventId +"`").queue();
                 });
     }
 }

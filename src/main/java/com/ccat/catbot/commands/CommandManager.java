@@ -37,7 +37,8 @@ public class CommandManager {
         commandMap.put("roll", new DiceRollCommand(diceRollService, messageService));
         commandMap.put("specify", new SpecifyCommand(messageService, serverChannelService));
         commandMap.put("schedule", new ScheduleCommand(timezoneService, eventTimeService,messageService));
-        commandMap.put("createevent", new CreateEventCommand(eventCreateService,messageService));
+        commandMap.put("eventcreate", new CreateEventCommand(eventCreateService,messageService));
+        commandMap.put("eventview", new RetrieveEventCommand(eventTimeService,messageService));
     }
 
     public void executeCommand(String command, Member member, TextChannel channel, Message message) {

@@ -21,7 +21,8 @@ public class HelpCommand implements ServerCommand {
         stringBuilder.append("`!reactrole [channel-Id] [message-Id] [role-Id] [emote]` - to allow users to receive roles via reactions on a specific message. \n");
         stringBuilder.append("`!permit [@user] [permission code]` - grant a member without elevated permissions access to certain bot-commands. \n");
         stringBuilder.append("`!specify [channel-Id] [specifier]` - specify channels the bot will listen on (e.g. MUSIC,VOICE,SYSTEM). \n");
-        stringBuilder.append("`!createEvent [\"topic\"] [startTimeUTC] [duration]` - creates an Event with Event-Id description. (Start-time in UTC and duration are optional.) \n");
+        stringBuilder.append("`!eventCreate [\"topic\"] [startTimeUTC] [duration]` - creates an Event with Event-Id description. (Start-time in UTC and duration are optional.) \n");
+        stringBuilder.append("`!eventView [event-Id]` - allows Users to view scheduled Time-data for a specific Event. \n");
         stringBuilder.append("`!schedule [event-Id]` - allows Users to input their desired times for a specific event. \n");
 
         stringBuilder.append("`!roll [sides] [amount]` - roll an amount of dice with desired sides.");

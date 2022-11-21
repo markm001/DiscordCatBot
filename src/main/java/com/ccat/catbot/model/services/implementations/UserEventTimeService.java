@@ -28,8 +28,12 @@ public class UserEventTimeService {
         ));
     }
 
-    public EventDataDto searchSuitableTime(UserEventTime request) {
+    public Optional<EventDataDto> searchSuitableTime(UserEventTime request) {
         List<UserEventTime> userEventTimesResponse = eventTimeDao.findUserTimesForEventId(request.getEventId());
+
+        if(userEventTimesResponse.isEmpty()) {
+            return Optional.empty();
+        }
 
         List<ZonedDateTime> userTimeData = userEventTimesResponse.stream()
                 .map(UserEventTime::getAvailableTime)
@@ -119,13 +123,13 @@ public class UserEventTimeService {
                 );
 
 
-        return new EventDataDto(request.getEventId(),
+        return Optional.of(new EventDataDto(request.getEventId(),
                 availableDate.get(),
                 availableHours.get().stream().map(i -> LocalTime.of(i, 0)).collect(Collectors.toSet()),
                 availableUsers.get(),
                 userSelectedTimes,
                 timeEvaluation,
                 missingParticipantData
-        );
+        ));
     }
 }
